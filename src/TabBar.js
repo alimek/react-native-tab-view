@@ -37,6 +37,7 @@ type Props<T> = SceneRendererProps<T> & {
   renderBadge?: (scene: Scene<T>) => React.Node,
   renderIndicator?: (props: IndicatorProps<T>) => React.Node,
   onTabPress?: (scene: Scene<T>) => mixed,
+  onTabLongPress?: (scene: Scene<T>) => mixed,
   tabStyle?: ViewStyleProp,
   indicatorStyle?: ViewStyleProp,
   activeTabStyle?: ViewStyleProp,
@@ -68,6 +69,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
     renderLabel: PropTypes.func,
     renderIndicator: PropTypes.func,
     onTabPress: PropTypes.func,
+    onTabLongPress: PropTypes.func,
     labelStyle: PropTypes.any,
     style: PropTypes.any,
     activeTabStyle: PropTypes.any,
@@ -275,6 +277,12 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
     this.props.jumpTo(route.key);
   };
 
+  _handleTabLongPress = ({ route }: Scene<*>) => {
+    if (this.props.onTabLongPress) {
+      this.props.onTabLongPress({ route });
+    }
+  };
+
   _normalizeScrollValue = (props, value) => {
     const { layout, navigationState } = props;
     const tabWidth = this._getTabWidth(props);
@@ -417,7 +425,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
             onMomentumScrollBegin={this._handleMomentumScrollBegin}
             onMomentumScrollEnd={this._handleMomentumScrollEnd}
             contentOffset={this.state.initialOffset}
-            ref={el => (this._scrollView = el && el._component)}
+            ref={el => (this._scrollView = el && el.getNode())}
           >
             {routes.map((route, i) => {
               const outputRange = inputRange.map(
@@ -493,6 +501,7 @@ export default class TabBar<T: *> extends React.Component<Props<T>, State> {
                   pressOpacity={this.props.pressOpacity}
                   delayPressIn={0}
                   onPress={() => this._handleTabPress({ route })}
+                  onLongPress={() => this._handleTabLongPress({ route })}
                   style={tabContainerStyle}
                 >
                   <View pointerEvents="none" style={styles.container}>
